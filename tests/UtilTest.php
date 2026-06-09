@@ -28,11 +28,9 @@ class UtilTest extends TestCase
 	}
 
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 */
 	function testGetFirstitemWithNonIterable()
 	{
+		$this->expectException(\InvalidArgumentException::class);
 		get_first_item(new \stdClass);
 	}
 
