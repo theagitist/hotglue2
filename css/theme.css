@@ -1,25 +1,35 @@
 /*
  * css/theme.css - editor skin (theagitist/hotglue2 fork).
  *
- * THIS BRANCH: standalone Hotglue, navy #002848 icons on the light editor.
- * The telaris branch overrides this whole file with the Void/Aurora/mint
- * brand chrome. Loaded only in edit mode by module_theme.inc.php.
+ * THIS BRANCH: standalone Hotglue, navy #002848 icons on a light button chip.
+ * The telaris branch overrides this whole file with the Void/Aurora/mint brand
+ * chrome (dark HUD chip, aurora icons, mint active state). Loaded only in edit
+ * mode by module_theme.inc.php.
  *
  * Licensed under the GNU General Public License. See the file COPYING.
  */
 
-/* The modern icons render at 64px (2x) for retina. Action icons are
- * <img width=32 height=32> and downscale themselves; the toggle icons are
- * 32px background-image <div>s, so pin their background to 32px. */
+/* Each menu button carries its own chip, so the icon reads on ANY page
+ * background (the editor menus float over the page, which may be dark or a
+ * photo). Menu items are .glue-menu; context-menu items are
+ * .glue-contextmenu-left / -top. Keep the 32px footprint (menu coords are
+ * absolute) - just paint a rounded plate behind the glyph. */
+.glue-menu,
+.glue-contextmenu-left,
+.glue-contextmenu-top {
+	background-color: rgba(255, 255, 255, 0.94);
+	border-radius: 8px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* The toggle <div>s render at 64px (2x) and set background-color:transparent at
+ * #id specificity to kill the old green "enabled" box. Re-assert the chip and
+ * pin the 2x background to 32px. State is shown by the icon's own check/x badge,
+ * so the chip colour is the same on/off. */
 [id^="glue-contextmenu-"],
 [id^="glue-menu-"] {
+	background-color: rgba(255, 255, 255, 0.94) !important;
 	background-size: 32px 32px;
 	background-repeat: no-repeat;
 	background-position: center;
-}
-
-/* State now reads from each toggle's own check/x badge, so retire the old
- * 90s green "enabled" box. */
-.glue-menu-enabled {
-	background-color: transparent;
 }
