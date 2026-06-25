@@ -1,0 +1,6 @@
+# Local secret override (plaintext auth); never publish. Use user-config.inc.php-dist as the template.
+/user-config.inc.php
+
+# Runtime flat-file content store (pages, uploads, cache). Keep the upstream log placeholder.
+/content/
+!/content/log.txt
