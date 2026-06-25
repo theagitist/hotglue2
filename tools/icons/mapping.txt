@@ -68,3 +68,4 @@ modules/webvideo/webvideo-autoplay-off.png     circle-play
 modules/webvideo/webvideo-handle.png           grip
 modules/webvideo/webvideo-loop-on.png          repeat
 modules/webvideo/webvideo-loop-off.png         repeat
+modules/draw/draw.png                           pencil
