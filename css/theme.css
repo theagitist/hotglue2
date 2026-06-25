@@ -1,0 +1,25 @@
+/*
+ * css/theme.css - editor skin (theagitist/hotglue2 fork).
+ *
+ * THIS BRANCH: standalone Hotglue, navy #002848 icons on the light editor.
+ * The telaris branch overrides this whole file with the Void/Aurora/mint
+ * brand chrome. Loaded only in edit mode by module_theme.inc.php.
+ *
+ * Licensed under the GNU General Public License. See the file COPYING.
+ */
+
+/* The modern icons render at 64px (2x) for retina. Action icons are
+ * <img width=32 height=32> and downscale themselves; the toggle icons are
+ * 32px background-image <div>s, so pin their background to 32px. */
+[id^="glue-contextmenu-"],
+[id^="glue-menu-"] {
+	background-size: 32px 32px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+/* State now reads from each toggle's own check/x badge, so retire the old
+ * 90s green "enabled" box. */
+.glue-menu-enabled {
+	background-color: transparent;
+}
