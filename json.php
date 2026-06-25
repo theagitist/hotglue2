@@ -44,7 +44,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
 	//	break;
 	case 'POST':
 		foreach ($_POST as $key=>$val) {
-			$val = stripslashes($val);
+			// theagitist/hotglue2 fork, 2026-06-25: removed an unconditional
+			// stripslashes($val) that ran here. It was for legacy magic_quotes_gpc
+			// (cf. the commented GET branch above, guarded by get_magic_quotes_gpc()),
+			// but magic_quotes is gone in PHP 7+/8 so incoming POST is NOT
+			// slash-escaped. Stripping unconditionally removed the backslashes that
+			// escape quotes inside JSON-encoded args (e.g. an object's 'html' on
+			// save), so json_decode() returned NULL and saves failed with
+			// "Error decoding the argument". The guard can't be reinstated either:
+			// get_magic_quotes_gpc() is removed in PHP 8 (calling it is fatal).
 			$dec = @json_decode($val, true);
 			if ($dec === NULL) {
 				$err = response('Error decoding the argument '.quot($key).' => '.var_dump_inl($val), 400);
