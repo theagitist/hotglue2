@@ -7,6 +7,12 @@
  *	Copyright Gottfried Haider, Danja Vasiliev 2010.
  *	This source code is licensed under the GNU General Public License.
  *	See the file COPYING for more details.
+ *
+ *	theagitist/hotglue2 fork, 2026-06-25: user-facing response() messages are
+ *	being wrapped in t() (module_i18n) for editor UI localization. The English
+ *	catalog values are byte-identical to the original literals, so behaviour is
+ *	unchanged for the default locale. (Wrapping is incremental; not every message
+ *	is converted yet.)
  */
 
 @require_once('config.inc.php');
@@ -134,7 +140,7 @@ function check_auto_snapshot($args)
 		return response('Required argument "page" missing', 400);
 	}
 	if (!page_exists($args['page'])) {
-		return response('Page '.quot($args['page']).' does not exist', 400);
+		return response(t('page.not_exist', quot($args['page'])), 400);
 	}
 	
 	$a = expl('.', $args['page']);
@@ -238,7 +244,7 @@ function create_object($args)
 		return response('Required argument "page" missing', 400);
 	}
 	if (!page_exists($args['page'])) {
-		return response('Page '.quot($args['page']).' does not exist', 400);
+		return response(t('page.not_exist', quot($args['page'])), 400);
 	}
 	
 	// try to create new file
@@ -380,7 +386,7 @@ function delete_page($args)
 		return response('Required argument "page" missing or empty', 400);
 	}
 	if (!page_exists($args['page'])) {
-		return response('Page '.quot($args['page']).' does not exist', 404);
+		return response(t('page.not_exist', quot($args['page'])), 404);
 	}
 	
 	log_msg('info', 'delete_page: deleting '.quot($args['page']));
@@ -833,7 +839,7 @@ function render_page($args)
 		return response('Required argument "page" missing or empty', 400);
 	}
 	if (!page_exists($args['page'])) {
-		return response('Page '.quot($args['page']).' does not exist', 404);
+		return response(t('page.not_exist', quot($args['page'])), 404);
 	}
 	if (!isset($args['edit'])) {
 		return response('Required argument "edit" missing', 400);
@@ -1009,7 +1015,7 @@ function revert($args)
 		return response('Required argument "page" missing or empty', 400);
 	}
 	if (!page_exists($args['page'])) {
-		return response('Page '.quot($args['page']).' does not exist', 404);
+		return response(t('page.not_exist', quot($args['page'])), 404);
 	}
 	$a = expl('.', $args['page']);
 	if ($a[1] == 'head') {
@@ -1302,7 +1308,7 @@ function snapshot($args)
 		return response('Required argument "page" missing or empty', 400);
 	}
 	if (!page_exists($args['page'])) {
-		return response('Page '.quot($args['page']).' does not exist', 404);
+		return response(t('page.not_exist', quot($args['page'])), 404);
 	}
 	// setup revision name
 	$a = expl('.', $args['page']);
@@ -1440,7 +1446,7 @@ function upload_files($args)
 		return response('Required argument "page" missing or empty', 400);
 	}
 	if (!page_exists($args['page'])) {
-		return response('Page '.quot($args['page']).' does not exist', 404);
+		return response(t('page.not_exist', quot($args['page'])), 404);
 	}
 	
 	$ret = array();
