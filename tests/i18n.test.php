@@ -65,4 +65,17 @@ ok(t('__no_such_key__') === '__no_such_key__', 't(unknown) returns the key verba
 ok(t('page.not_exist', '"start"') === sprintf($es['page.not_exist'], '"start"'),
    't(page.not_exist, ...) interpolates %s using the es template');
 
+// 7. catalog parity: every translation has exactly en's keys, with matching %s
+// counts (a mismatched %s count would make vsprintf() fatal at runtime)
+foreach (array('es', 'fr', 'pt') as $l) {
+	$cat = json_decode(file_get_contents("lang/$l.json"), true);
+	ok(is_array($cat), "$l.json is valid JSON");
+	ok(array_keys($cat) == array_keys($en), "$l.json has exactly en.json's keys");
+	$mismatch = 0;
+	foreach ($en as $k => $v) {
+		if (substr_count($cat[$k], '%s') !== substr_count($v, '%s')) { $mismatch++; }
+	}
+	ok($mismatch === 0, "$l.json: %s placeholder counts match en for every key");
+}
+
 echo "\nall i18n checks passed\n";
