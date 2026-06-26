@@ -36,6 +36,14 @@
 
 	var MP_URL_SUFFIX = 'modules/draw/minipaint/index.html';
 
+	// miniPaint reads ?lang=<code> at boot (Helper.get_url_parameters -> AppConfig.LANG)
+	// and bundles these languages. Map our active locale to one it has, else 'en'.
+	var MP_LANGS = { en: 1, es: 1, fr: 1, pt: 1, de: 1, it: 1, ja: 1, ko: 1, nl: 1, ru: 1, tr: 1, uk: 1, zh: 1 };
+	function mp_lang() {
+		var l = String($.glue.locale || 'en').toLowerCase().replace(/[^a-z]/g, '');
+		return MP_LANGS[l] ? l : 'en';
+	}
+
 	function build_modal() {
 		modal = $(
 			'<div class="glue-ui glue-draw-overlay" style="display: none;">' +
@@ -78,7 +86,7 @@
 	function open_modal(load_url) {
 		if (!modal) { build_modal(); }
 		ready_token++;                       // invalidate any prior poll
-		frame.src = $.glue.base_url + MP_URL_SUFFIX;  // reload => clean session
+		frame.src = $.glue.base_url + MP_URL_SUFFIX + '?lang=' + mp_lang();  // reload => clean session, in the active language
 		modal.css('display', 'block');
 		if (load_url) {
 			when_ready(function (win) {
