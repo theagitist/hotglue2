@@ -31,6 +31,15 @@ search, remove.bg, TinyPNG). They are not invoked by our draw -> place flow.
 The social-preview `<meta>` tags in `index.html` point at the upstream demo site
 but are not fetched when embedded in an iframe.
 
+## Language
+
+`module_draw`'s launcher (`../draw-edit.js`) opens the iframe with `?lang=<code>`
+so miniPaint's UI matches the Hotglue editor's active locale. miniPaint reads
+this at boot (`Helper.get_url_parameters().lang` -> `AppConfig.LANG`) and bundles
+en/es/fr/pt (plus de/it/ja/ko/nl/ru/tr/uk/zh); unknown codes fall back to `en`.
+If a future update changes that URL-param behaviour, update `mp_lang()` /
+`MP_URL_SUFFIX` use in `../draw-edit.js`.
+
 ## How to update
 
 Re-vendor from a newer release tag (do not float):

@@ -8,7 +8,7 @@
  */
 
 $(document).ready(function() {
-	elem = $('<img src="'+$.glue.base_url+'modules/user_code/user_code.png" alt="add/edit custom code" title="add/edit custom code" width="32" height="32">');
+	elem = $('<img src="'+$.glue.base_url+'modules/user_code/user_code.png" alt="'+$.glue.t('user_code.menu_label')+'" title="'+$.glue.t('user_code.menu_label')+'" width="32" height="32">');
 	$(elem).bind('click', function(e) {
 		$.glue.menu.hide();
 		window.location = $.glue.base_url+'?'+$.glue.page+'/code';

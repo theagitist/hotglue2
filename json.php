@@ -53,9 +53,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			// save), so json_decode() returned NULL and saves failed with
 			// "Error decoding the argument". The guard can't be reinstated either:
 			// get_magic_quotes_gpc() is removed in PHP 8 (calling it is fatal).
+			// Also wraps user-facing response() messages in t() (module_i18n) for UI localization (English byte-identical).
 			$dec = @json_decode($val, true);
 			if ($dec === NULL) {
-				$err = response('Error decoding the argument '.quot($key).' => '.var_dump_inl($val), 400);
+				$err = response(t('request.decode_error', quot($key), var_dump_inl($val)), 400);
 				echo json_encode($err);
 				log_msg('warn', 'json: '.$err['#data']);
 				die();
@@ -66,7 +67,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		break;
 	default:
 		//$err = response('Only HTTP GET and POST requests supported', 400);
-		$err = response('Only HTTP POST requests supported', 400);
+		$err = response(t('request.post_only'), 400);
 		echo json_encode($err);
 		log_msg('warn', 'json: '.$err['#data']);
 		die();
@@ -82,7 +83,7 @@ if (!empty($args['method'])) {
 } else {
 	// this can also be caused by an upload exceeding the limits 
 	// set in php.ini
-	$err = response('Required argument "method" missing', 400);
+	$err = response(t('request.method_missing'), 400);
 	echo json_encode($err);
 	log_msg('warn', 'json: '.$err['#data']);
 	die();
@@ -91,7 +92,7 @@ if (!empty($args['method'])) {
 load_modules($method);
 
 if (!($m = get_service($method))) {
-	$err = response('Unknown method '.quot($method), 400);
+	$err = response(t('request.unknown_method', quot($method)), 400);
 	echo json_encode($err);
 	log_msg('warn', 'json: '.$err['#data']);
 	die();
@@ -112,7 +113,7 @@ if (isset($m['cross-origin']) && $m['cross-origin']) {
 	if (!empty($_SERVER['HTTP_REFERER'])) {
 		$bu = base_url();
 		if (substr($_SERVER['HTTP_REFERER'], 0, strlen($bu)) != $bu) {
-			echo json_encode(response('Cross-origin requests not supported for this method', 400));
+			echo json_encode(response(t('request.cross_origin'), 400));
 			log_msg('warn', 'json: possible xsrf detected, referer is '.quot($_SERVER['HTTP_REFERER']).', arguments '.var_dump_inl($args));
 			die();
 		}
