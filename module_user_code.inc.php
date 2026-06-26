@@ -8,6 +8,10 @@
  *	Copyright Gottfried Haider, Danja Vasiliev 2010.
  *	This source code is licensed under the GNU General Public License.
  *	See the file COPYING for more details.
+ *
+ *	theagitist/hotglue2 fork, 2026-06-25: user-facing response() messages
+ *	wrapped in t() (module_i18n) for editor UI localization; English catalog
+ *	values byte-identical.
  */
 
 @require_once('config.inc.php');
@@ -148,13 +152,13 @@ function user_code_render_page_early($args)
 function user_code_set_code($args)
 {
 	if (!isset($args['page']) || ($args['page'] !== false && !page_exists($args['page']))) {
-		return response('Required argument "page" missing or invalid', 400);
+		return response(t('user_code.page_missing_invalid'), 400);
 	}
 	if (!isset($args['head'])) {
-		return response('Required argument "head" missing', 400);
+		return response(t('user_code.head_missing'), 400);
 	}
 	if (!isset($args['body'])) {
-		return response('Required argument "body" missing', 400);
+		return response(t('user_code.body_missing'), 400);
 	}
 
 	if ($args['page'] === false) {
@@ -166,7 +170,7 @@ function user_code_set_code($args)
 				$m = umask(0111);
 				if (!@file_put_contents(CONTENT_DIR.'/user'.$x, $args[$x])) {
 					umask($m);
-					return response('Error saving user '.$x, 500);
+					return response(t('user_code.save_error', $x), 500);
 				} else {
 					umask($m);
 				}
