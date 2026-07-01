@@ -46,6 +46,7 @@ modules/text/text-font-style.png               italic
 modules/text/text-letter-spacing.png           unfold-horizontal
 modules/text/text-line-height.png              unfold-vertical
 modules/text/text-padding.png                  square-dashed
+modules/text/text-scroll.png                   move-vertical
 modules/text/text-scroll-on.png                move-vertical
 modules/text/text-scroll-off.png               move-vertical
 modules/text/text-word-spacing.png             between-horizontal-start
