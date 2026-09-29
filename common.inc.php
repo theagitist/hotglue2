@@ -111,6 +111,7 @@ function default_html($add_glue)
 		}
 		html_add_js_var('$.glue.base_url', base_url());
 		html_add_js_var('$.glue.conf.show_frontend_errors', SHOW_FRONTEND_ERRORS);
+		html_add_js_var('$.glue.conf.upload.max_size', UPLOAD_MAX_SIZE);
 		html_add_js_var('$.glue.version', glue_version());
 	}
 }
