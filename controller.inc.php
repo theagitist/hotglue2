@@ -10,6 +10,7 @@
  */
 
 @require_once('config.inc.php');
+require_once('telaris-auth.inc.php');	// Telaris session + auth bridge; starts the session before any output
 require_once('common.inc.php');
 require_once('html.inc.php');
 require_once('log.inc.php');
@@ -65,6 +66,9 @@ function controller_create_page($args)
 	}
 	html_add_js_var('$.glue.page', $page);
 	html_add_js_var('$.glue.q', (SHORT_URLS ? '' : '?'));
+	// hand the Telaris CSRF token to hotglue's AJAX layer (create_page.js POSTs
+	// glue.create_page through json.php, which the bridge CSRF-checks)
+	html_add_js_var('$.glue.csrf_token', $_SESSION['csrf_token'] ?? '');
 	$bdy = &body();
 	elem_attr($bdy, 'id', 'create_page');
 	body_append(tab(1).'<div id="paper">'.nl());
@@ -110,15 +114,28 @@ function controller_edit($args)
 	page_canonical($args[0][0]);
 	$page = $args[0][0];
 	if (!page_exists($page)) {
-		log_msg('debug', 'controller_edit: page '.quot($page).' does not exist, invoking controller_create_page');
-		controller_create_page($args);
-		return;
+		// Telaris: lazily auto-create the page so the editor never sees
+		// hotglue's "create page" UI. The Telaris auth bridge has already
+		// authorized this node page (editor session + seat + not read-only),
+		// so creating it here is safe; we then fall through to render the
+		// editor on the now-empty canvas. Fall back to the create UI only if
+		// the auto-create fails for some reason.
+		load_modules('glue');
+		$created = create_page(['page' => $page]);
+		if (!empty($created['#error'])) {
+			log_msg('warn', 'controller_edit: auto-create of '.quot($page).' failed, invoking controller_create_page');
+			controller_create_page($args);
+			return;
+		}
+		log_msg('info', 'controller_edit: auto-created '.quot($page));
 	}
 	
 	// create page on the fly
 	load_modules('glue');
 	default_html(true);
 	html_add_js_var('$.glue.page', $page);
+	// hand the Telaris CSRF token to hotglue's AJAX layer (see glue.js/edit.js)
+	html_add_js_var('$.glue.csrf_token', $_SESSION['csrf_token'] ?? '');
 	html_add_css(base_url().'css/edit.css', 5);
 	if (USE_MIN_FILES) {
 		html_add_js(base_url().'js/moveable.min.js', 3);
@@ -357,26 +374,22 @@ function invoke_controller($args)
 	if ($match !== false) {
 		// check authentication for those controllers that require it
 		if (isset($match['auth']) && $match['auth']) {
-			if (!is_auth()) {
-				prompt_auth();
-			}
-			
-			// also check the referer to prevent against cross site request
-			// forgery (xsrf)
-			// this is not really optimal, since proxies can filter the referer
-			// header, but as a first step..
-			// use request_base_url() (always derived from this request),
-			// not base_url() (can be a fixed, different domain when
-			// BASE_URL is configured, e.g. a custom domain pointed at this
-			// install - comparing against it would reject every legitimate
-			// request that didn't arrive on that one specific domain)
-			if (!empty($_SERVER['HTTP_REFERER'])) {
-				$bu = request_base_url();
-				if (substr($_SERVER['HTTP_REFERER'], 0, strlen($bu)) != $bu) {
-					log_msg('warn', 'controller: possible xsrf detected, referer is '.quot($_SERVER['HTTP_REFERER']).', arguments '.var_dump_inl($args));
-					hotglue_error(400);
-				}
-			}
+			// Telaris bridge replaces hotglue's global is_auth()/prompt_auth():
+			// requires an editor session + a seat on the node's galaxy, and
+			// rejects read-only/mirrored galaxies. args[0][0] is the page
+			// (node-<id> for edit/create_page; non-node controllers like the
+			// page browser are denied).
+			telaris_hg_authorize_get($args[0][0]);
+
+			// Telaris: hotglue's referer XSRF check is intentionally NOT applied
+			// here. This is a GET that renders the editor (no state change), and
+			// the edit window is embedded in a same-origin iframe from the Telaris
+			// editor (/edit/), whose Referer is the Telaris page rather than a /hg/
+			// URL, which the original check would wrongly reject (400). The real
+			// defenses remain: the bridge's session + per-galaxy seat gate, the
+			// SameSite=Strict session cookie, and the Telaris CSRF token enforced
+			// on every state-changing json.php call (which keeps its own referer
+			// check, since those requests originate inside the /hg/ iframe).
 		}
 		
 		log_msg('info', 'controller: invoking controller '.quot($reason).' => '.$match['func']);

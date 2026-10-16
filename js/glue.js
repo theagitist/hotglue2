@@ -45,6 +45,9 @@ $.glue.backend = function()
 		fetch($.glue.base_url+'json.php', {
 			method: 'POST',
 			body: body,
+			// attach the Telaris CSRF token (set as $.glue.csrf_token by the edit
+			// controller) so json.php's bridge accepts the write
+			headers: { 'X-CSRF-Token': ($.glue.csrf_token || '') },
 			signal: controller.signal
 		}).then(function(response) {
 			if (!response.ok) {
