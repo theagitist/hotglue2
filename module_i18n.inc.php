@@ -12,7 +12,7 @@
  *
  *	Locale: TELARIS_LOCALE (defined by telaris-auth.inc.php from the editor's
  *	account language), else ?lang= (the Telaris editor appends it to the iframe
- *	URL). English needs no catalog.
+ *	URL), else the browser's Accept-Language. English needs no catalog.
  *
  *	This source code is licensed under the GNU General Public License.
  *	See the file COPYING for more details.
@@ -24,9 +24,11 @@ require_once('html.inc.php');
 
 function i18n_locale()
 {
-	$raw = defined('TELARIS_LOCALE') ? (string)TELARIS_LOCALE : ($_GET['lang'] ?? '');
-	// "es-CR" / "pt_BR" -> "es" / "pt": the catalogs are per primary language
-	$code = strtolower(substr($raw, 0, strcspn($raw, '-_')));
+	// standalone sites (no Telaris) fall back to the browser's first language
+	$raw = defined('TELARIS_LOCALE') ? (string)TELARIS_LOCALE : ($_GET['lang'] ?? ($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? ''));
+	// "es-CR" / "pt_BR" / "es,en;q=0.8" -> "es" / "pt" / "es": the catalogs
+	// are per primary language
+	$code = strtolower(trim(substr($raw, 0, strcspn($raw, '-_,;'))));
 	return (preg_match('/^[a-z]{2,3}$/', $code) && is_file(__DIR__.'/lang/'.$code.'.json')) ? $code : '';
 }
 
