@@ -130,6 +130,11 @@ function mobile_scaler_js($floor)
 	}
 
 	function init() {
+		// ng's guided view (js/mobile-guided.js, deferred, so it has already run
+		// by DOMContentLoaded) owns small screens when it activates. Wrapping its
+		// absolutely-positioned canvas measures 0x0, and the overflow:hidden clip
+		// then hides the whole page.
+		if (document.getElementById('hg-mg-canvas')) return;
 		clip = document.createElement('div');
 		clip.id = 'hg-clip';
 		clip.style.overflow = 'hidden';
